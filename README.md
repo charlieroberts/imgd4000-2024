@@ -13,9 +13,11 @@ Office Hours: by appointment (arrange via Discord DM)
 Student Assistant: Jiangwen Nong  
 Email: jnong@wpi.edu  
 Office Hours:  
-- Tuesday / Wednesday - 3-5 PM
+- Monday - By appointment
+- Tuesday - 4-5PM
+- Wednesday - 4-6PM
 - Thursday - 2-5PM
-- By appointment (arrange via Discord DM)
+- Friday - By appointment
 - All office hours will be in either FL 222 or the ZooLab; this will be announced beforehand in the course Discord server 
 
 IMGD 4000 will explore concepts related to technical development using game engines. Game engines are used in a wide range of fields including games, simulations, and architecture, and are an important part of any developer's toolbox, regardles of whether or not a developer is working on a "game".
