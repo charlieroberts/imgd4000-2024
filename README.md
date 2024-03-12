@@ -262,7 +262,7 @@ Outside of individual assignments (described below) gradesshould be expected be 
 ### Assignments (30% Total)  
 For the additional assignments in this class, you must complete at least one of the two programming assignments (Agent-based simulation or Pathfinding / A\*) and then one other choice from the following list:
 
-- Assignment 1: [Agent-based simulation](agents_assignement.md) - 15%
+- Assignment 1: [Agent-based simulation](agents_assignment.md) - 15%
 - Assignment 2: [Pathfinding](pathfinding_assignment.md) - 15%
 - [Final Project Portfolio](./development_portfolio.md) - 15%
 - In-class tutorial - 15%
