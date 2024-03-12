@@ -2,7 +2,7 @@
 
 Classroom: Remote + FL222
 
-(REMOTE) Tuesdays and Fridays 2:00 to 1:50 pm
+(REMOTE) Tuesdays and Fridays 2:00 to 3:50 pm
 
 (IN PERSON) Lab Sessions on Wednesdays from 2 to 3:50 pm
 
