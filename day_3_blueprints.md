@@ -186,4 +186,4 @@ from the white control node at the top of `Spawn Emitter Attached` and then sear
 3. Next we'll drag a pin from the control flow output of `Set Visibility` and create a second `Delay` node; set the duration for `2.0` seconds. Drag a pin from the `Completed` control flow output and choose the `Destroy Actor` node.
 
 4. Last but not least we need the actor we want to destroy. Drag a pin from the `M` output of our event; remember that this represents our `StaticMeshComponent`. To get the `Actor` that owns the mesh, we can select the `Get Owner` node. Take the return value of `Get Owner` and connect it to the `Target` input of our `Destroy Actor` node.  
-Save and compile the blueprint, and then test your scene to see the results. Your final blueprint should look something [like this](https://github.com/imgd4000-2024/blob/main/images/day3/fire_blueprint.png), minus all the formatting and comments.
+Save and compile the blueprint, and then test your scene to see the results. Your final blueprint should look something [like this](https://github.com/charlieroberts/imgd4000-2024/blob/main/fire_blueprint.png), minus all the formatting and comments.
