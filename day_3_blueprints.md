@@ -122,7 +122,7 @@ Important (and bizzaro) things to point out, that all relate to the bindings bet
 
 1. The `BlueprintNativeEvent` specifier will enable us to create a node in Blueprints that outputs an event trigger.
 2. We need to create two separate functions. One generates our blueprints event, and one contains an implementation for the event. 
-3. You must name the implementation the same as the Blueprints event + `_Implementation` or the compiler will throw an error. This is a very specific way to create bindings between C++ / Blueprints / the editor. Ugh.
+3. You must name the implementation the same as the Blueprints event + `_Implementation` or the compiler will throw an error. This is a very specific way to create bindings between C++ / Blueprints / the editor. This method will be called if the event is not used in the Blueprint. Since we know we are going to use the event in our Blueprint we could basically leave this blank, however, you MUST include the function in the header/c++ files or your class will not compile.
 
 OK, with that out of the way, we can all our `HitSomething` method from our `Fire` method (assuming we do actually hit something). In the `SpherePawn` C++ file, switch the following line in the `Fire` method:
 
@@ -132,19 +132,18 @@ hr.GetActor()->Destroy();
 
  to the following:
 ```c++
-HitSomething_Implementation(Cast<UStaticMeshComponent>(hr.GetActor()->GetRootComponent()));
+HitSomething( Cast<UStaticMeshComponent>(hr.GetActor()->GetRootComponent()) );
 ```
 
-The root component of our cube will typically (but not necessarily) be a StaticMeshComponent, so we’ll cast it as such, and then pass it to our `HitSomething_Implementation`, which we’ll define as below:
+For our implementation, we'll just leave it with a log statement:
 
 ```c++
 void ASpherePawn::HitSomething_Implementation(class UStaticMeshComponent *meshThatWasHit ) {
-	HitSomething(meshThatWasHit);
-	UE_LOG(LogTemp, Warning, TEXT("HIT SOMETHING CALLED"));
+UE_LOG(LogTemp, Warning, TEXT("HIT SOMETHING CALLED"));
 }
 ```
 
-Note that calling `HitSomething` (which we defined as a UFUNCTION with the BlueprintNativeEvent specifier) is what actually triggers the event in Blueprints. We have to include that call.
+Note that calling `HitSomething` (which we defined as a UFUNCTION with the `BlueprintNativeEvent` specifier) is what actually triggers the event in Blueprints. We have to include that call.
 
 Compile your C++ code and then move on to creating / editing a blueprint subclass of it. DO NOT TEST IT AT THIS STAGE OR YOU WILL CRASH THE ENGINE.
 
@@ -165,7 +164,8 @@ Now let’s spawn our particle emitter. Right-click on the Blueprints canvas aga
 Connect the topmost control flow output from our “Event Hit Something” node to the topmost control flow input in our “Spawn Emitter Attached” node. 
 
 Next, we need to select the particle system that will be spawned. Click on the “Emitter Template” input for the spawn node, 
-and then select the “P_electricity_arc” that we migrated to this project earlier.
+and then select the “P_Fire” that we migrated to this project earlier. If you don't see this as an option, you probably need to
+import the Starter Content into your project.
 
 Almost there! Connect the “M” output to the “Attach to Component” input of our spawn node. Set “Location Type” on the spawn node to be “Snap to Target, Including Scale”.
 
@@ -173,40 +173,17 @@ Last step: drag an instance of your `SpherePawn_BP` component into your level. A
 Make sure you to tell the pawn to “possess” via the Auto Possess Player option. Make sure the SpherePawn is selected (not the mesh component) and 
 then choose Pawn > Auto Possess Player > Player 0 from the Details tree menu.
 
-OK! Compile your blueprint, hit Save, and then hit Play. You should see the particle system placed when you hit the cube with your line trace. 
-It might help to make the cube a bigger target (by scaling it) so it’s easier to hit.
+OK! Compile your blueprint, hit Save, and then hit Play. You should see the particle system placed when you hit the cube with your line trace. It might help to make the cube a bigger target (by scaling it) so it’s easier to hit.
 
-### Orient our particles
-Right now, although the particles are placed correctly, they are not oriented to create a connection between our player and the cube. 
-Let’s change this. First we need to edit the particle system itself. 
-Find it in the Content Browser and then double click on it to edit. 
+### The cube has burned and must be removed
+Let's now setup our blueprint so that after the fire has burned for a few seconds our target is removed from the scene. We'll also set it up so that our fire continues to burn for a second or two afterwards.
 
-Click on the “Source” property of the “beam” emitter in the particle editor. 
-Change its value to be “Emitter”. This means the particles will begin at the source of the emitter. 
-Next click on the “Target” property of the beam emitter and set it to be “User set”. 
-This will enable us to set its value from Blueprints. Save the particle blueprint and close the editor; 
-alternatively, feel free to play around with some of the other properties (color, size, etc.)
+1. In order to create delays in ourr Blueprints we can use the `Delay` node. Drag a pin
+from the white control node at the top of `Spawn Emitter Attached` and then search for `Delay`. Use `3.0` or whatever else you want for our delay duration.
 
-Back in the blueprint for our “SpherePawn”, drag the “Mesh” component into our canvas from the Components panel in the upper left corner; 
-this automatically creates a Mesh node that will represent whatever Mesh we assign to our `SpherePawn`. You might need to add the `BlueprintReadOnly` desgination
-to the `UPROPERTY` declaration for this property, so that it reads:
+2. At the end of these three seconds we want to set out cube visibility to 0. While we could simply destroy the cube actor, our particles have been attached to it and would immediately also disappear if we did this. By changing the visibility of the mesh to 0 other components remain visible. Drag a pin from the `Completed` control flow output of our `Delay` node, and search for `Set Visibility`. Connect the `M` output from our event to the `Target` output of our new `Set Visibility` node. Make sure the `New Visibility` argument is unchecked (false). If you save/compile and test your blueprint now, you should see the cube vanish after three seconds while the fire remains.
 
-`UPROPERTY(EditAnywhere, BlueprintReadOnly)
-class UStaticMeshComponent * Mesh;
-`
+3. Next we'll drag a pin from the control flow output of `Set Visibility` and create a second `Delay` node; set the duration for `2.0` seconds. Drag a pin from the `Completed` control flow output and choose the `Destroy Actor` node.
 
-Drag off a connection and release, this will bring up the new node dialog box. Search for `GetWorldLocation`, 
-this node will find the location of the mesh in the world. Once selected, the output of your mesh will be automatically connected to 
-the relevant input (in this case there’s only one, `Target`) in the new node that is created.
-
-OK, our next step is to set the target location of our beam. 
-Drag a pin off of the “Return Value” output of our `GetWorldLocation` node, and then do a search for the “Set Beam Target Point” node; 
-the location will be auto-connected to the “New Target Point” property. If `Set Beatm Target Point` doesn't appear in your Blueprints list, make sure you 
-uncheck that `Context Sensitive` option in the upper right corner so that it shows all nodes available.
-
-Connect the control flow output of our Spawn Emitter to our Set Beam Target Point control flow input, and then connect the Return Value (which represents the emitter) of the Spawn Emitter node two the “Target” attribute of the Set Beam Target Point node.  Compile your Blueprint, save it, and hit Play. You should now have correctly oriented particles!
-
-### Set the particles to flow between pawn and enemy
-Last but not least we’ll set the particles to flow between the pawn and the enemy. To do this, all we need to do is keep calling Set Beam Target Point with a brief delay.  Drag a pin out of the control flow output from Set Beam Target Point, and do a search for Delay. Set a duration of .05 (in seconds) by typing it into the property field. Last but not least, connect the output of the delay to the control flow input of the Set Beam Target Point. This, in effect, creates a recursive function that calls itself over time, constantly updating the location of the player and thus changing the positioning of the particle beam. 
-
-Save and compile the blueprint, and then test your scene to see the results. Your final blueprint should look something [like this](https://github.com/imgd-4000-2020/syllabus-and-notes/blob/master/images/day4/beam_blueprint.png)
+4. Last but not least we need the actor we want to destroy. Drag a pin from the `M` output of our event; remember that this represents our `StaticMeshComponent`. To get the `Actor` that owns the mesh, we can select the `Get Owner` node. Take the return value of `Get Owner` and connect it to the `Target` input of our `Destroy Actor` node.  
+Save and compile the blueprint, and then test your scene to see the results. Your final blueprint should look something [like this](https://github.com/imgd4000-2024/blob/main/images/day3/fire_blueprint.png), minus all the formatting and comments.
