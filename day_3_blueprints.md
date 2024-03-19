@@ -94,17 +94,6 @@ if( hr.bBlockingHit == true ) {
 This is a bit quicker to look at, but doesn't save the message to a log file. Of course, there's nothing to stop you from using both `UE_LOG` and `AddOnScreenDebugMessage` to get the best of both worlds.
 
 ## Adding a particle system
-### Importing our particles
-In our [last class](ue_tutorial_day3.md) we added a line trace that checked to see if the “shot” our sphere pawn fired intersected with an enemy cube 
-(spheres are natural enemies of cubes natch).  Now we’re going to add a particle emitter that will be placed when a hit occurs… 
-this effect will create a stream between the player and the target object.
-
-First thing we need to do is migrate our particle effect from our Content Examples project. You can do this in different ways, but the easiest is to
-simply find the `.uasset` file you're interested in the Context Examples project and copy it into the `Content` directory of your Unreal project. You can
-find the file in `ContextExamples > Content > ExampleContent > Effects > ParticleSystems`. I'll use the `P_electricity_arc.uasset` file. Copy this into
-your project directory (again, into the `Content` folder).
-
-Great! You’ve now added your particle system to the project. With your project open, you should see the effect in your content browser.
 
 ### Creating a “hit” event for Blueprints
 We’re going to edit / dynamically place our particle emitter using Blueprints, but before we can do that we need to create 
