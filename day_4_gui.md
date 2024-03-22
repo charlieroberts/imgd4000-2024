@@ -80,7 +80,7 @@ In the editor content browser, 	right-click and choose User Interface > Widget B
 
 In the designer view, drag out a `Panel > Canvas Panel`, and then layout a simple Progress Bar widget and place an accompanying text label. With the progress bar you just added selected, choose Details > Progress > Bind. This will create a new binding for your element that will enable you to update your progress bar in a blueprint.
 
-In the resulting blueprint graph view, create a [blueprint like this image](https://github.com/imgd-4000-2020/syllabus-and-notes/blob/master/images/day4/widget_blueprint.png)
+In the resulting blueprint graph view, create a [blueprint like this image](./widget_blueprint.png)
 
 Compile and save this blueprint.
 
