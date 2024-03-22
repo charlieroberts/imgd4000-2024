@@ -1,5 +1,5 @@
-# Flocksing
-Goal: Get started on the [Agent-based simulation assignment](./boids_assignment.md) and continue wrapping our brains around Unreal’s C++ "features".
+# Flocking
+Goal: Get started on the [Agent-based simulation assignment](./agents_assignment.md) and continue wrapping our brains around Unreal’s C++ "features".
 
 ## Start
 Go ahead and create a new, blank, C++ game project. No need to import the starter content... you can always do that later if you need it and it can shorten compile times to leave it out. Name the project “FlockingGame”; if you choose another name make you change all corresponding code snippets to reflect the correct name of your `GameModeBase` subclass.
