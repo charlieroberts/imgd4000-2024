@@ -2,7 +2,7 @@
 Goal: Get started on the [Agent-based simulation assignment](./agents_assignment.md) and continue wrapping our brains around Unreal’s C++ "features".
 
 ## Start
-Go ahead and create a new, blank, C++ game project. No need to import the starter content... you can always do that later if you need it and it can shorten compile times to leave it out. Name the project “FlockingGame”; if you choose another name make you change all corresponding code snippets to reflect the correct name of your `GameModeBase` subclass.
+Go ahead and create a new, blank, C++ game project. No need to import the starter content... you can always do that later if you need it and it can shorten compile times to leave it out. Name the project "Flocking"; if you choose another name make you change all corresponding code snippets to reflect the correct name of your `GameModeBase` subclass.
 
 ## Who’s in charge here?
 I’m recommending an architecture similar to the following:
@@ -201,34 +201,40 @@ Our constructor performs some basic initialization that we’ve looked at before
 Almost there! Just need to place our agents into the world.
 
 ## Rise, agents, rise
-Let’s change the `Init` method of our FlockingManager so that it places agents into the world. We’ll place them in a ring on the XY axis to start. We’ll also create a macro to define the number of agents we’re using.
+Let’s change the `Init` method of our FlockingManager so that it places agents into the world. We’ll place them in a ring on the XY axis to start. We’ll also create a macro to define the number of agents we’re using. You'll also need to include the "Agent.h" header for this to compile.
 
 ```c++
-#define AGENT_COUNT 10
+#include "FlockingManager.h"
+#include "Agent.h"
+
+#define AGENT_COUNT 10    
 
 void UFlockingManager::Init( UWorld *world, UStaticMeshComponent *mesh ) {
-    UE_LOG(LogTemp, Warning, TEXT("Manager initialized"));
-    
-    World = world;
-    float incr = (PI * 2.f) / AGENT_COUNT;
-    for( int i = 0; i < AGENT_COUNT; i++ ) {
-        if( World != nullptr ) {
-            FRotator rotation = FRotator();
+  UE_LOG(LogTemp, Warning, TEXT("MANAGER INIT"));
 
-            FVector location = FVector();
-            location.X = FMath::Sin( incr * i ) * 150.f;
-            location.Z = FMath::Cos( incr * i ) * 150.f;
+  World = world;
 
-            AAgent * agent = World->SpawnActor<AAgent>( location, rotation );
-            agent->Init( mesh, i );
-            Agents.Add( agent );
-        }
+  float incr = (PI * 2.f) / AGENT_COUNT;
+  for( int i = 0; i < AGENT_COUNT; i++ ) {
+    if( World != nullptr ) {
+      FRotator rotation = FRotator();
+
+      FVector location = FVector();
+      location.X = FMath::Sin( incr * i ) * 150.f;
+      location.Z = FMath::Cos( incr * i ) * 150.f;
+
+      AAgent * agent = World->SpawnActor<AAgent>( location, rotation );
+      agent->Init( mesh, i );
+      Agents.Add( agent );
     }
+  }
 
-    initialized = true;
+  initialized = true;
 }
+
+void UFlockingManager::Flock() {}
 ```
 
 We’re using a bit of math to create the initial position information, but don’t worry about that if your trig is rusty. The main thing to note is the three lines that spawn each agent, initialize it, and add it to our `TArray`. 
 
-OK! That’s enough to spawn our agents and get them into the world, updating their position each frame according to their velocity. Your job is to now implement `UFlockingManager::Flock` so that it carries out the  [various rules of Boids](https://github.com/imgd-4000-2020/syllabus-and-notes/blob/master/boids_assignment.md) . Good luck, and remember to ask questions on the Slack!
+OK! That’s enough to spawn our agents and get them into the world, updating their position each frame according to their velocity. Your job is to now implement `UFlockingManager::Flock` so that it carries out the  [various rules of Boids](https://github.com/imgd-4000-2020/syllabus-and-notes/blob/master/boids_assignment.md) . Good luck, and remember to ask questions on the Discord!
