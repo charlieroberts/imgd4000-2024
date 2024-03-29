@@ -238,3 +238,71 @@ void UFlockingManager::Flock() {}
 We’re using a bit of math to create the initial position information, but don’t worry about that if your trig is rusty. The main thing to note is the three lines that spawn each agent, initialize it, and add it to our `TArray`. 
 
 OK! That’s enough to spawn our agents and get them into the world, updating their position each frame according to their velocity. Your job is to now implement `UFlockingManager::Flock` so that it carries out the  [various rules of Boids](https://github.com/imgd-4000-2020/syllabus-and-notes/blob/master/boids_assignment.md) . Good luck, and remember to ask questions on the Discord!
+
+## BONUS
+If you play around with changing the `Velocity` of agents in `FlockingManager::Init` you'll notice it is annoying to choose a value... you have to recompile C++ everytime. What if, instead, we could change the `Velocity` through the Unreal Editor interface while the simulation was running? This is a key concept to enable designers to customize behaviors and levels without requiring them to edit C++.
+
+Here are the steps to make this happen:
+1. We'll add a public float named `Speed` to our `FlockingGameModeBase` class.
+2. In our Agent class, we'll include `FlockingGameModeBase` header, and an additional header `Kismet/GameplayStatics.h` that makes it easy to access the game mode of our world.
+3. In every tick of each agent, we'll look at our `FlockingGameModeBase` class and grab our `Speed` variable to update the `Velocity` of the agent.
+4. We'll add some metadata so that we can create a slider with min/max values for editing the value of `Speed` while the simulator is running.
+
+### Step 1: Add Speed variable
+Remember that we have a blueprint based on our C++ gamemode that is being used to control our game. Change our `FlockingGameModeBase.h` file to add a public speed member; make the other members private.
+```c++
+#include "CoreMinimal.h"
+#include "GameFramework/GameModeBase.h"
+#include "FlockingManager.h"
+#include "FlockingGameModeBase.generated.h"
+
+UCLASS()
+class FLOCKING_API AFlockingGameModeBase : public AGameModeBase
+{
+  GENERATED_BODY()
+  AFlockingGameModeBase();
+
+  public:
+    UPROPERTY(EditAnywhere, meta=(ClampMin="-10.0", ClampMax="10.0"))
+    float Speed;
+
+  private:
+    UPROPERTY(EditAnywhere)
+    class UStaticMeshComponent * AgentMesh;
+
+    UPROPERTY() UFlockingManager *Manager;
+
+    virtual void BeginPlay() override;
+    virtual void Tick(float DeltaTime) override;
+};
+```
+## Step 2: Change the includes of our Agent.cpp file
+```c++
+#include "Agent.h"
+#include "FlockingGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+```
+Kismet was the visual scripting system in Unreal 3, before Blueprints came along. It still provides some useful helper functions; we'll use it to grab a reference to the GameMode used by our world.
+
+## Step 3: Change Agent.Tick to update Velocity based on our GameMode
+```c++
+void AAgent::Tick(float DeltaTime){
+  Super::Tick(DeltaTime);
+  AFlockingGameModeBase *gmb = Cast<AFlockingGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+  Velocity.Z = gmb->Speed;
+
+  FVector loc = GetActorLocation();
+  SetActorLocation( loc + Velocity );
+}
+```
+
+If you recompile and run, at this point you should be able to select your GameMode Blueprint in the Outliner while the game runs, modify the Speed property, and immediately see the changes... no recompilation required!
+
+## Step 4: Make Speed nicer to control
+We can quickly turn the interface for Speed into a slider by editing the `UPROPERTY` macro it is associated with in `FlockingGameModeBase.h`:
+
+```c++
+  public:
+    UPROPERTY(EditAnywhere, meta=(ClampMin="-20.0", ClampMax="20.0"))
+    float Speed;
+```
